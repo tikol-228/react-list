@@ -1,0 +1,43 @@
+.card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid white;
+}
+
+.cardContent {
+    padding: 10px;
+}
+
+.cardTitle {
+    font-weight: bold;
+}
+
+.cardDescription {
+    color: #ccc;
+}
+
+.cardButtons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.editBtn {
+    background: blue;
+    color: white;
+    border-radius: 4px;
+}
+
+.nextBtn {
+    background: teal;
+    color: white;
+    border-radius: 4px;
+}
+
+.deleteBtn {
+    background: red;
+    color: white;
+    border-radius: 4px;
+}
