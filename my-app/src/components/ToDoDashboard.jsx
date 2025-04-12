@@ -4,6 +4,8 @@ import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
 import styles from './ToDoDashboard.module.css';
 import { ACTIONS, todoReducer } from '../helpers/todoReducer';
+import { useContext } from 'react';
+import { ThemeContext } from '../providers/ThemProvider';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
@@ -11,6 +13,7 @@ const ToDoDashboard = () => {
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
+    const {theme, toggleTheme} = useContext(ThemeContext);
 
     const handleAddBtnClick = () => {
         setIsAddToDoModalOpen(!isAddToDoModalOpen);
@@ -49,8 +52,9 @@ const ToDoDashboard = () => {
     
     return (
         <>
-            <div className='container'>
-                <Button className='addBtn' onClick={handleAddBtnClick}>Add</Button>
+            <div className={styles.container}>
+                <Button className={styles.addBtn} onClick={handleAddBtnClick}>Add</Button>
+                <Button className={styles.themeBtn} onClick={toggleTheme}>change theme: {theme}</Button>
             </div>
             {isAddToDoModalOpen && (
                 <AddToDoModal 
@@ -66,7 +70,7 @@ const ToDoDashboard = () => {
 
             <div className={styles.columns}>
                 <div className={styles.column}>
-                    <h2>To Do</h2>
+                    <h2 className={styles.columnHeader}>To Do</h2>
                     {todos.filter(todo => todo.status === "To Do").map((todo, index) => (
                         <Card 
                             key={index} 
@@ -80,7 +84,7 @@ const ToDoDashboard = () => {
                     ))}
                 </div>
                 <div className={styles.column}>
-                    <h2>In Progress</h2>
+                    <h2 className={styles.columnHeader}>In Progress</h2>
                     {todos.filter(todo => todo.status === "In Progress").map((todo, index) => (
                         <Card 
                             key={index} 
@@ -94,14 +98,13 @@ const ToDoDashboard = () => {
                     ))}
                 </div>
                 <div className={styles.column}>
-                    <h2>Done</h2>
+                    <h2 className={styles.columnHeader}>Done</h2>
                     {todos.filter(todo => todo.status === "Done").map((todo, index) => (
                         <Card 
                             key={index} 
                             title={todo.title} 
                             description={todo.description} 
                             status={todo.status} 
-
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
                             dispatch={dispatch}
@@ -109,7 +112,8 @@ const ToDoDashboard = () => {
                     ))}
                 </div>
                 <div className={styles.column}>
-                    <h2>Deleted 
+                    <h2 className={styles.columnHeader}>
+                        Deleted 
                         <Button className={styles.clearBtn} onClick={clearDeletedTodos}>Clear all</Button>
                     </h2>
                     {todos.filter(todo => todo.status === "Deleted").map((todo, index) => (
@@ -118,7 +122,6 @@ const ToDoDashboard = () => {
                             title={todo.title} 
                             description={todo.description} 
                             status={todo.status} 
-
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
                             dispatch={dispatch}

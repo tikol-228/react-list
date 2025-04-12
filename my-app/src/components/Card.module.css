@@ -41,3 +41,24 @@
     color: white;
     border-radius: 4px;
 }
+
+.cardButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cardButtons button {
+  background-color: #eeeeee;
+  border: none;
+  border-radius: 10px;
+  padding: 0.4rem 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cardButtons button:hover {
+  background-color: #d5d5d5;
+}
