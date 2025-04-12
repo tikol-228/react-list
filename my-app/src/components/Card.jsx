@@ -1,31 +1,17 @@
 import React from 'react';
 import Button from './Button';
 import styles from './Card.module.css';
+import { ACTIONS, todoReducer } from '../helpers/todoReducer';
+import AddToDoModal from './ManageToDoModal';
 
-const Card = ({ title, description, status, setTodos, index, onEdit }) => {
+const Card = ({ title, description, setTodos, index, onEdit, dispatch }) => {
   const onNextBtnClick = () => {
-    setTodos(prevTodos =>
-      prevTodos.map((todo, i) =>
-        i === index ? { ...todo, status: getNextStatus(todo.status) } : todo
-      )
-    );
-  };
-
-  const getNextStatus = (currentStatus) => {
-    if (currentStatus === "To Do") return "In Progress";
-    if (currentStatus === "In Progress") return "Done";
-    if (currentStatus === "Done") return "Deleted"; // Перемещение в Deleted
-    return currentStatus;
-  };
-  
-  const onEditBtnClick = () => {
-    onEdit(index); // Вызов функции редактирования
+    dispatch({type: ACTIONS.moveNext, payload: index})
   };
 
   const onDeleteBtnClick = () => {
-    setTodos(prevTodos => prevTodos.map((todo, i) =>
-      i === index ? { ...todo, status: "Deleted" } : todo
-    ));
+    dispatch({type:ACTIONS.delete, payload: index})
+    console.log(1)
   };
 
   return (
@@ -35,7 +21,7 @@ const Card = ({ title, description, status, setTodos, index, onEdit }) => {
         <p className={styles.cardDescription}>Description: {description}</p>
       </div>
       <div className={styles.cardButtons}>
-        <Button onClick={onEditBtnClick}>Edit</Button>
+        <Button onClick={() => {onEdit(index)}}>Edit</Button>
         <Button onClick={onNextBtnClick}>Next</Button>
         <Button onClick={onDeleteBtnClick}>Delete</Button>
       </div>

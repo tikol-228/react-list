@@ -1,13 +1,14 @@
 import './App.css'
 import ToDoDashboard from './components/ToDoDashboard'
+import ThemeProvider from './providers/ThemProvider'
 
 
 function App() {
 
   return (
     <>
-      <ToDoDashboard/>
 
+      <ThemeProvider><ToDoDashboard/></ThemeProvider>      
     </>
   )
 }

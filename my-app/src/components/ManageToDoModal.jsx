@@ -4,11 +4,10 @@ import BaseField from './BaseField';
 import Input from './Input';
 import Modal from './Modal';
 
-const AddToDoModal = ({ onClose, setTodos, editTitle, setEditTitle, editDescription, setEditDescription, onEditSubmit }) => {
+const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
-  // Используем useEffect для установки значений при редактировании
   useEffect(() => {
     setTitle(editTitle);
     setDescription(editDescription);
@@ -17,24 +16,26 @@ const AddToDoModal = ({ onClose, setTodos, editTitle, setEditTitle, editDescript
   const onSubmitBtnClick = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
+    
+    onSumbmit(title, description)
 
-    if (editTitle) {
-      // Если редактируем, вызываем onEditSubmit и передаем новые данные
-      onEditSubmit(title, description);
-    } else {
-      // Если добавляем новую задачу
-      const newTodo = { 
-        title, 
-        description, 
-        status: "To Do"
-      };
-      setTodos(prev => [...prev, newTodo]);
-    }
+    // if (editTitle) {
 
-    // Сбрасываем поля ввода
-    setTitle('');
-    setDescription('');
-    onClose();
+    //   onEditSubmit(title, description);
+    // } else {
+
+    //   const newTodo = { 
+    //     title, 
+    //     description, 
+    //     status: "To Do"
+    //   };
+    //   setTodos(prev => [...prev, newTodo]);
+    // }
+
+    // // Сбрасываем поля ввода
+    // setTitle('');
+    // setDescription('');
+    // onClose();
   };
 
   return (
@@ -56,4 +57,4 @@ const AddToDoModal = ({ onClose, setTodos, editTitle, setEditTitle, editDescript
   );
 };
 
-export default AddToDoModal;
+export default ManageToDoModal;

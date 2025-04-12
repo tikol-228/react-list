@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import Button from './Button';
-import AddToDoModal from './AddToDoModal';
+import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
 import styles from './ToDoDashboard.module.css';
+import { ACTIONS, todoReducer } from '../helpers/todoReducer';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
-    const [todos, setTodos] = useState([]);
+    const [todos, dispatch] = useReducer(todoReducer,[]);
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
@@ -16,14 +17,14 @@ const ToDoDashboard = () => {
     };
 
     const clearDeletedTodos = () => {
-        setTodos(prevTodos => prevTodos.filter(todo => todo.status !== "Deleted"));
+        dispatch({ type: ACTIONS.clear });
     };
 
     const handleEdit = (index) => {
         const todoToEdit = todos[index];
-        setEditIndex(index);
-        setEditTitle(todoToEdit.title);
-        setEditDescription(todoToEdit.description);
+        console.log(todoToEdit)
+        console.log(index)
+        dispatch({type: ACTIONS.edit, payload: {index, title: todoToEdit.title, description: todoToEdit.description}});
         setIsAddToDoModalOpen(true); // Открываем модалку для редактирования
     };
 
@@ -38,6 +39,13 @@ const ToDoDashboard = () => {
         setEditTitle('');
         setEditDescription('');
     };    
+
+    const handleSubmit = (title,description) => {
+        console.log(title)
+        console.log(description)
+        dispatch({type: ACTIONS.add, payload: {title,description,status: "To Do"}})
+        setIsAddToDoModalOpen(false)
+    }
     
     return (
         <>
@@ -47,12 +55,12 @@ const ToDoDashboard = () => {
             {isAddToDoModalOpen && (
                 <AddToDoModal 
                     onClose={() => setIsAddToDoModalOpen(false)} 
-                    setTodos={setTodos}
                     editTitle={editTitle}
                     setEditTitle={setEditTitle}
                     editDescription={editDescription}
                     setEditDescription={setEditDescription}
                     onEditSubmit={handleEditSubmit} // Передаем функцию для редактирования
+                    onSumbmit={handleSubmit}
                 />
             )}
 
@@ -64,10 +72,10 @@ const ToDoDashboard = () => {
                             key={index} 
                             title={todo.title} 
                             description={todo.description} 
-                            status={todo.status} 
-                            setTodos={setTodos} 
+                            status={todo.status}  
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
+                            dispatch={dispatch}
                         />
                     ))}
                 </div>
@@ -79,9 +87,9 @@ const ToDoDashboard = () => {
                             title={todo.title} 
                             description={todo.description} 
                             status={todo.status} 
-                            setTodos={setTodos} 
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
+                            dispatch={dispatch}
                         />
                     ))}
                 </div>
@@ -93,9 +101,10 @@ const ToDoDashboard = () => {
                             title={todo.title} 
                             description={todo.description} 
                             status={todo.status} 
-                            setTodos={setTodos} 
+
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
+                            dispatch={dispatch}
                         />
                     ))}
                 </div>
@@ -109,9 +118,10 @@ const ToDoDashboard = () => {
                             title={todo.title} 
                             description={todo.description} 
                             status={todo.status} 
-                            setTodos={setTodos} 
+
                             index={index} 
                             onEdit={handleEdit} // Передаем функцию редактирования
+                            dispatch={dispatch}
                         />
                     ))}
                 </div>
