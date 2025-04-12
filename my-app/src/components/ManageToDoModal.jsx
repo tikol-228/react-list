@@ -3,6 +3,7 @@ import Button from './Button';
 import BaseField from './BaseField';
 import Input from './Input';
 import Modal from './Modal';
+import styles from './ManageToDoModal.module.css';
 
 const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => {
   const [title, setTitle] = useState('');
@@ -40,18 +41,18 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => 
 
   return (
     <Modal>
-      <form className='addForm' onSubmit={onSubmitBtnClick}>
-        <div className='header'>
+      <form className={styles.addForm} onSubmit={onSubmitBtnClick}>
+        <div className={styles.header}>
           <h2>{editTitle ? 'Edit ToDo' : 'Add ToDo'}</h2>
-          <Button onClick={onClose}>Close</Button>
+          <Button className={styles.closeButton} onClick={onClose}>Close</Button>
         </div>
-        <BaseField label="Title: ">
-          <Input value={title} onChange={e => setTitle(e.target.value)} />
+        <BaseField className={styles.field} label="Title: ">
+          <Input className={styles.input} value={title} onChange={e => setTitle(e.target.value)} />
         </BaseField>
-        <BaseField label="Description: ">
-          <Input value={description} onChange={e => setDescription(e.target.value)} />
+        <BaseField className={styles.field} label="Description: ">
+          <Input className={styles.input} value={description} onChange={e => setDescription(e.target.value)} />
         </BaseField>
-        <Button type="submit">{editTitle ? 'Update' : 'Submit'}</Button>
+        <Button className={styles.submitButton} type="submit">{editTitle ? 'Update' : 'Submit'}</Button>
       </form>
     </Modal>
   );
