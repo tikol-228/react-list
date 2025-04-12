@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/vite-react-todo-app/',
+  base: 'https://tikol-228.github.io/react-list',
 })
