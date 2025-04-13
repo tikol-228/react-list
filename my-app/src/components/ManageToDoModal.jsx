@@ -44,10 +44,10 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => 
       <form className={styles.addForm} onSubmit={onSubmitBtnClick}>
         <div className={styles.header}>
           <h2>{editTitle ? 'Edit ToDo' : 'Add ToDo'}</h2>
-          <Button className={styles.closeButton} onClick={onClose}>Close</Button>
+          <Button className={styles.closeButton} onClick={onClose}></Button>
         </div>
         <BaseField className={styles.field} label="Title: ">
-          <Input className={styles.input} value={title} onChange={e => setTitle(e.target.value)} />
+          <Input className={styles.modalInput} value={title} onChange={e => setTitle(e.target.value)} />
         </BaseField>
         <BaseField className={styles.field} label="Description: ">
           <Input className={styles.input} value={description} onChange={e => setDescription(e.target.value)} />

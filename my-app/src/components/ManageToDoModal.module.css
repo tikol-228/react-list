@@ -1,74 +1,76 @@
 .addForm {
   background-color: var(--modal-bg);
-  color: var(--text-color);
-  border-radius: 16px;
   padding: 2rem;
-  width: 100%;
+  border-radius: 1rem;
   max-width: 500px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
   position: relative;
+  color: var(--text-color);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--input-border);
-  padding-bottom: 0.5rem;
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
 }
 
 .input {
-  padding: 0.6rem;
-  border: 1px solid var(--input-border);
-  border-radius: 10px;
+  padding: 0.75rem 1rem;
   background-color: var(--input-bg);
   color: var(--text-color);
+  border: 1px solid var(--input-border);
+  border-radius: 0.5rem;
   font-size: 1rem;
-  transition: border-color 0.2s ease;
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--primary-color);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .submitButton {
-  align-self: flex-end;
+  padding: 0.75rem 1.2rem;
+  font-size: 1rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 10px;
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s;
 }
 
 .submitButton:hover {
   background-color: var(--primary-color-dark);
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.closeButton::after {
+  content: "\00d7"; /* символ × */
+  display: block;
+  font-size: 2rem;
+  color: var(--text-color);
+  line-height: 1;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.closeButton:hover::after {
+  color: #d11a2a;
 }

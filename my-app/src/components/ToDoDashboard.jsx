@@ -46,88 +46,78 @@ const ToDoDashboard = () => {
     const handleSubmit = (title,description) => {
         console.log(title)
         console.log(description)
-        dispatch({type: ACTIONS.add, payload: {title,description,status: "To Do"}})
+        dispatch({type: ACTIONS.add, payload: {title,description,id: Date.now(),status: "To Do",}})
         setIsAddToDoModalOpen(false)
     }
+    const stats = todos.reduce((acc, todo) => {
+        acc[todo.status] = (acc[todo.status] || 0) + 1;
+        return acc;
+    }, { "To Do": 0, "In Progress": 0, "Done": 0, "Deleted": 0 });
+
+    const statuses = ["To Do", "In Progress", "Done", "Deleted"];
+
+    
     
     return (
         <>
             <div className={styles.container}>
-                <Button className={styles.addBtn} onClick={handleAddBtnClick}>Add</Button>
-                <Button className={styles.themeBtn} onClick={toggleTheme}>change theme: {theme}</Button>
+                <Button className={styles.addBtn} onClick={handleAddBtnClick}>
+                    Add
+                </Button>
+                <Button className={styles.themeBtn} onClick={toggleTheme}>
+                    change theme: {theme}
+                </Button>
+                <div className={styles.statsBox}>
+                    <h2>stats</h2>
+                    <ul>
+                        <li>Total To Do: {todos.length}</li>
+                        <li>To Do: {stats['To Do']}</li>
+                        <li>In Progress: {stats['In Progress']}</li>
+                        <li>Done: {stats['Done']}</li>
+                        <li>Deleted: {stats['Deleted']}</li>
+                    </ul>
+                </div>
             </div>
+
             {isAddToDoModalOpen && (
-                <AddToDoModal 
-                    onClose={() => setIsAddToDoModalOpen(false)} 
+                <AddToDoModal
+                    onClose={() => setIsAddToDoModalOpen(false)}
                     editTitle={editTitle}
                     setEditTitle={setEditTitle}
                     editDescription={editDescription}
                     setEditDescription={setEditDescription}
-                    onEditSubmit={handleEditSubmit} // Передаем функцию для редактирования
+                    onEditSubmit={handleEditSubmit}
                     onSumbmit={handleSubmit}
                 />
             )}
 
             <div className={styles.columns}>
-                <div className={styles.column}>
-                    <h2 className={styles.columnHeader}>To Do</h2>
-                    {todos.filter(todo => todo.status === "To Do").map((todo, index) => (
-                        <Card 
-                            key={index} 
-                            title={todo.title} 
-                            description={todo.description} 
-                            status={todo.status}  
-                            index={index} 
-                            onEdit={handleEdit} // Передаем функцию редактирования
-                            dispatch={dispatch}
-                        />
-                    ))}
-                </div>
-                <div className={styles.column}>
-                    <h2 className={styles.columnHeader}>In Progress</h2>
-                    {todos.filter(todo => todo.status === "In Progress").map((todo, index) => (
-                        <Card 
-                            key={index} 
-                            title={todo.title} 
-                            description={todo.description} 
-                            status={todo.status} 
-                            index={index} 
-                            onEdit={handleEdit} // Передаем функцию редактирования
-                            dispatch={dispatch}
-                        />
-                    ))}
-                </div>
-                <div className={styles.column}>
-                    <h2 className={styles.columnHeader}>Done</h2>
-                    {todos.filter(todo => todo.status === "Done").map((todo, index) => (
-                        <Card 
-                            key={index} 
-                            title={todo.title} 
-                            description={todo.description} 
-                            status={todo.status} 
-                            index={index} 
-                            onEdit={handleEdit} // Передаем функцию редактирования
-                            dispatch={dispatch}
-                        />
-                    ))}
-                </div>
-                <div className={styles.column}>
-                    <h2 className={styles.columnHeader}>
-                        Deleted 
-                        <Button className={styles.clearBtn} onClick={clearDeletedTodos}>Clear all</Button>
-                    </h2>
-                    {todos.filter(todo => todo.status === "Deleted").map((todo, index) => (
-                        <Card 
-                            key={index} 
-                            title={todo.title} 
-                            description={todo.description} 
-                            status={todo.status} 
-                            index={index} 
-                            onEdit={handleEdit} // Передаем функцию редактирования
-                            dispatch={dispatch}
-                        />
-                    ))}
-                </div>
+                {statuses.map((status) => (
+                    <div key={status} className={styles.column}>
+                        <h2 className={styles.columnHeader}>
+                            {status}
+                            {status === 'Deleted' && (
+                                <Button className={styles.clearBtn} onClick={clearDeletedTodos}>
+                                    Clear all
+                                </Button>
+                            )}
+                        </h2>
+                        {todos
+                            .filter((todo) => todo.status === status)
+                            .map((todo, index) => (
+                                <Card
+                                    key={todo.id}
+                                    id={todo.id}
+                                    title={todo.title}
+                                    description={todo.description}
+                                    status={todo.status}
+                                    index={index}
+                                    onEdit={handleEdit}
+                                    dispatch={dispatch}
+                                />
+                            ))}
+                    </div>
+                ))}
             </div>
         </>
     );
