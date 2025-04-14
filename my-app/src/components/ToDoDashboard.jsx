@@ -9,7 +9,12 @@ import { ThemeContext } from '../providers/ThemProvider';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
-    const [todos, dispatch] = useReducer(todoReducer,[]);
+    const initialState = {
+        todos: [],  // Начальное состояние todos — это пустой массив.
+        draggingId: null,
+    };    
+    const [state, dispatch] = useReducer(todoReducer, initialState);
+    const { todos, draggingId } = state;
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
@@ -25,23 +30,28 @@ const ToDoDashboard = () => {
 
     const handleEdit = (index) => {
         const todoToEdit = todos[index];
-        console.log(todoToEdit)
-        console.log(index)
-        dispatch({type: ACTIONS.edit, payload: {index, title: todoToEdit.title, description: todoToEdit.description}});
-        setIsAddToDoModalOpen(true); // Открываем модалку для редактирования
-    };
+        setEditIndex(todoToEdit.id); // передаем id вместо индекса
+        setEditTitle(todoToEdit.title);
+        setEditDescription(todoToEdit.description);
+        setIsAddToDoModalOpen(true);
+    }
 
     const handleEditSubmit = (newTitle, newDescription) => {
-        setTodos(prevTodos => 
-            prevTodos.map((todo, i) => 
-                i === editIndex ? { ...todo, title: newTitle, description: newDescription } : todo
-            )
-        );
+        dispatch({
+            type: ACTIONS.edit,
+            payload: {
+              index: editIndex,
+              title: newTitle,
+              description: newDescription
+            }
+        });
+      
+        // Очистка и закрытие модалки
         setIsAddToDoModalOpen(false);
         setEditIndex(null);
         setEditTitle('');
         setEditDescription('');
-    };    
+    };   
 
     const handleSubmit = (title,description) => {
         console.log(title)
@@ -49,10 +59,11 @@ const ToDoDashboard = () => {
         dispatch({type: ACTIONS.add, payload: {title,description,id: Date.now(),status: "To Do",}})
         setIsAddToDoModalOpen(false)
     }
-    const stats = todos.reduce((acc, todo) => {
+    const stats = (todos || []).reduce((acc, todo) => {
         acc[todo.status] = (acc[todo.status] || 0) + 1;
         return acc;
     }, { "To Do": 0, "In Progress": 0, "Done": 0, "Deleted": 0 });
+    
 
     const statuses = ["To Do", "In Progress", "Done", "Deleted"];
 
@@ -93,7 +104,9 @@ const ToDoDashboard = () => {
 
             <div className={styles.columns}>
                 {statuses.map((status) => (
-                    <div key={status} className={styles.column}>
+                    <div key={status} className={styles.column}
+                    onDragOver={(e) => e.preventDefault()} // нужно для разрешения drop
+                    onDrop={() => dispatch({ type: ACTIONS.drop, payload: status })}>
                         <h2 className={styles.columnHeader}>
                             {status}
                             {status === 'Deleted' && (

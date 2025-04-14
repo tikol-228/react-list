@@ -5,7 +5,7 @@ import Input from './Input';
 import Modal from './Modal';
 import styles from './ManageToDoModal.module.css';
 
-const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => {
+const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit, onEditSubmit }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -17,27 +17,16 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit }) => 
   const onSubmitBtnClick = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    
-    onSumbmit(title, description)
-
-    // if (editTitle) {
-
-    //   onEditSubmit(title, description);
-    // } else {
-
-    //   const newTodo = { 
-    //     title, 
-    //     description, 
-    //     status: "To Do"
-    //   };
-    //   setTodos(prev => [...prev, newTodo]);
-    // }
-
-    // // Сбрасываем поля ввода
-    // setTitle('');
-    // setDescription('');
-    // onClose();
+  
+    if (editTitle && onEditSubmit) {
+      onEditSubmit(title, description);
+    } else {
+      onSumbmit(title, description);
+    }
+  
+    onClose();
   };
+  
 
   return (
     <Modal>

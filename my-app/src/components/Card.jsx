@@ -9,6 +9,10 @@ const Card = ({ title, description, id, index, onEdit, dispatch }) => {
     dispatch({type: ACTIONS.moveNext, payload: id})
   };
 
+  const handleDragStart = () => {
+    dispatch({ type: ACTIONS.dragStart, payload: id });
+  }
+
   const onDeleteBtnClick = () => {
     dispatch({type:ACTIONS.delete, payload: id})
     console.log(1)
@@ -19,17 +23,19 @@ const Card = ({ title, description, id, index, onEdit, dispatch }) => {
   }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.cardContent}>
-        <p className={styles.cardTitle}>Title: {title}</p>
-        <p className={styles.cardDescription}>Description: {description}</p>
-      </div>
-      <div className={styles.cardButtons}>
-        <Button onClick={() => {onEdit(index)}}>Edit</Button>
-        <Button onClick={handleBackBtn}>Back</Button>
-        <Button onClick={onNextBtnClick}>Next</Button>
-        <Button onClick={onDeleteBtnClick}>Delete</Button>
-      </div>
+    <div
+      draggable onDragStart={handleDragStart}
+      className={styles.card}>
+        <div className={styles.cardContent}>
+          <p className={styles.cardTitle}>Title: {title}</p>
+          <p className={styles.cardDescription}>Description: {description}</p>
+        </div>
+        <div className={styles.cardButtons}>
+          <Button onClick={() => {onEdit(index)}}>Edit</Button>
+          <Button onClick={handleBackBtn}>Back</Button>
+          <Button onClick={onNextBtnClick}>Next</Button>
+          <Button onClick={onDeleteBtnClick}>Delete</Button>
+        </div>
     </div>
   );
 };

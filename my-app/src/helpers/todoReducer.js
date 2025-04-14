@@ -1,11 +1,20 @@
-export const ACTIONS = {add: "add",delete:"delete",back:"back",clear:"clear",edit: "edit",moveNext: "moveNext"}
+export const ACTIONS = {
+    add: "add",
+    delete: "delete",
+    drop: "drop",
+    dragStart: "dragStart",
+    back: "back",
+    clear: "clear",
+    edit: "edit",
+    moveNext: "moveNext",
+};
 
 export const getBackStatus = (currentStatus) => {
     if (currentStatus === "In Progress") return "To Do";
     if (currentStatus === "Done") return "In Progress";
     if (currentStatus === "Deleted") return "Done"; // Перемещение в Done
     return currentStatus;
-}
+};
 
 export const getNextStatus = (currentStatus) => {
     if (currentStatus === "To Do") return "In Progress";
@@ -14,31 +23,87 @@ export const getNextStatus = (currentStatus) => {
     return currentStatus;
 };
 
-
 export const todoReducer = (state, action) => {
     switch (action.type) {
         case ACTIONS.add:
-            return [...state, action.payload];
-            case ACTIONS.moveNext:
-                return state.map(todo =>
-                    todo.id === action.payload ? { ...todo, status: getNextStatus(todo.status) } : todo
-                );
+            // Добавляем новый todo в массив todos
+            return {
+                ...state,
+                todos: [...state.todos, action.payload], // Сохраняем новые todos в состоянии
+            };
+        
+        case ACTIONS.moveNext:
+            // Перемещаем задачу в следующий статус
+            return {
+                ...state,
+                todos: state.todos.map(todo =>
+                    todo.id === action.payload
+                        ? { ...todo, status: getNextStatus(todo.status) }
+                        : todo
+                ),
+            };
+
         case ACTIONS.delete:
-            return state.map(todo =>
-                todo.id === action.payload ? { ...todo, status: "Deleted" } : todo
-            );
+            // Меняем статус задачи на "Deleted"
+            return {
+                ...state,
+                todos: state.todos.map(todo =>
+                    todo.id === action.payload
+                        ? { ...todo, status: "Deleted" }
+                        : todo
+                ),
+            };
+
         case ACTIONS.back:
-            return state.map(todo =>
-                todo.id === action.payload ? { ...todo, status: getBackStatus(todo.status) } : todo
-            );
+            // Перемещаем задачу в предыдущий статус
+            return {
+                ...state,
+                todos: state.todos.map(todo =>
+                    todo.id === action.payload
+                        ? { ...todo, status: getBackStatus(todo.status) }
+                        : todo
+                ),
+            };
+
+        case ACTIONS.dragStart:
+            // Сохраняем id задачи, которую начали перетаскивать
+            return {
+                ...state,
+                draggingId: action.payload,
+            };
+
+        case ACTIONS.drop:
+            // Обновляем статус задачи, которую отпустили
+            return {
+                ...state,
+                todos: state.todos.map(todo =>
+                    todo.id === state.draggingId
+                        ? { ...todo, status: action.payload }
+                        : todo
+                ),
+                draggingId: null, // Сбрасываем id перетаскиваемой задачи
+            };
+
+
         case ACTIONS.edit:
-            return state.map(todo =>
-                todo.id === action.payload.index
-                    ? { ...todo, title: action.payload.title, description: action.payload.description }
-                    : todo
-            );
+            // Редактируем задачу по id
+            return {
+                ...state,
+                todos: state.todos.map(todo =>
+                    todo.id === action.payload.id
+                        ? { ...todo, title: action.payload.title, description: action.payload.description }
+                        : todo
+                ),
+            };
+
         case ACTIONS.clear:
-            return state.filter((todo) => todo.status !== "Deleted");
+            // Очищаем все задачи со статусом "Deleted"
+            return {
+                ...state,
+                todos: state.todos.filter(todo => todo.status !== "Deleted"),
+            };
+
+
         default:
             return state;
     }
