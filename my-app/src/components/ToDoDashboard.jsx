@@ -3,6 +3,8 @@ import Button from './Button';
 import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
 import styles from './ToDoDashboard.module.css';
+import BaseField from './BaseField';
+import Input from './Input';
 import { ACTIONS, todoReducer } from '../helpers/todoReducer';
 import { useContext } from 'react';
 import { ThemeContext } from '../providers/ThemProvider';
@@ -18,6 +20,7 @@ const ToDoDashboard = () => {
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
+    const [search, setSearch] = useState('');
     const {theme, toggleTheme} = useContext(ThemeContext);
 
     const handleAddBtnClick = () => {
@@ -67,6 +70,11 @@ const ToDoDashboard = () => {
 
     const statuses = ["To Do", "In Progress", "Done", "Deleted"];
 
+    const filteredTodos = todos.filter(todo =>
+        todo.title.toLowerCase().includes(search.toLowerCase()) ||
+        todo.description.toLowerCase().includes(search.toLowerCase())
+    );    
+
     
     
     return (
@@ -78,6 +86,9 @@ const ToDoDashboard = () => {
                 <Button className={styles.themeBtn} onClick={toggleTheme}>
                     change theme: {theme}
                 </Button>
+                <BaseField className={styles.field} label="search: ">
+                    <Input className={styles.searchInput} value={search} onChange={(e) => setSearch(e.target.value)}/>
+                </BaseField>
                 <div className={styles.statsBox}>
                     <h2>stats</h2>
                     <ul>
@@ -115,7 +126,7 @@ const ToDoDashboard = () => {
                                 </Button>
                             )}
                         </h2>
-                        {todos
+                        {filteredTodos
                             .filter((todo) => todo.status === status)
                             .map((todo, index) => (
                                 <Card
