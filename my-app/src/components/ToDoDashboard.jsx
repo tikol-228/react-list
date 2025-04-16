@@ -14,7 +14,7 @@ const ToDoDashboard = () => {
     const initialState = {
         todos: [],  // Начальное состояние todos — это пустой массив.
         draggingId: null,
-    };    
+    };
     const [state, dispatch] = useReducer(todoReducer, initialState);
     const { todos, draggingId } = state;
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
@@ -89,6 +89,9 @@ const ToDoDashboard = () => {
                 <BaseField className={styles.field} label="search: ">
                     <Input className={styles.searchInput} value={search} onChange={(e) => setSearch(e.target.value)}/>
                 </BaseField>
+
+                
+
                 <div className={styles.statsBox}>
                     <h2>stats</h2>
                     <ul>
@@ -134,10 +137,11 @@ const ToDoDashboard = () => {
                                     id={todo.id}
                                     title={todo.title}
                                     description={todo.description}
-                                    status={todo.status}
+                                    taskStatus={todo.status}
                                     index={index}
                                     onEdit={handleEdit}
                                     dispatch={dispatch}
+                                    draggingId={state.draggingId}
                                 />
                             ))}
                     </div>

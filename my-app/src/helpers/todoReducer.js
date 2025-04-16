@@ -7,6 +7,7 @@ export const ACTIONS = {
     clear: "clear",
     edit: "edit",
     moveNext: "moveNext",
+    reorder: "reorder",
 };
 
 export const getBackStatus = (currentStatus) => {
@@ -102,6 +103,30 @@ export const todoReducer = (state, action) => {
                 ...state,
                 todos: state.todos.filter(todo => todo.status !== "Deleted"),
             };
+        
+            case ACTIONS.reorder: {
+                const { fromId, toId } = action.payload;
+            
+                const todos = [...state.todos];
+                const fromIndex = todos.findIndex(todo => todo.id === fromId);
+                const toIndex = todos.findIndex(todo => todo.id === toId);
+            
+                if (fromIndex === -1 || toIndex === -1) return state;
+            
+                const fromTodo = todos[fromIndex];
+                const toTodo = todos[toIndex];
+            
+                // Меняем порядок только если карточки в одной колонке
+                if (fromTodo.status !== toTodo.status) return state;
+            
+                todos.splice(fromIndex, 1);
+                todos.splice(toIndex, 0, fromTodo);
+            
+                return {
+                    ...state,
+                    todos,
+                };
+            }            
 
 
         default:
