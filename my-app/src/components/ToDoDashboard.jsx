@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useCallback, useReducer, useState } from 'react';
 import Button from './Button';
 import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
@@ -16,7 +16,7 @@ const ToDoDashboard = () => {
         draggingId: null,
     };
     const [state, dispatch] = useReducer(todoReducer, initialState);
-    const { todos, draggingId } = state;
+    const { todos } = state;
     const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
@@ -31,30 +31,37 @@ const ToDoDashboard = () => {
         dispatch({ type: ACTIONS.clear });
     };
 
-    const handleEdit = (index) => {
-        const todoToEdit = todos[index];
-        setEditIndex(todoToEdit.id); // передаем id вместо индекса
-        setEditTitle(todoToEdit.title);
+    const handleEdit = (id) => {
+        const todoToEdit = todos.find(todo => todo.id === id); // Ищем задачу по id
+
+        if (!todoToEdit) {
+            console.error(`Task with id ${id} not found`);
+            return; // Выходим из функции, если задача не найдена
+        }
+
+        setEditIndex(id); // Сохраняем id редактируемой задачи
+        setEditTitle(todoToEdit.title); // Заполняем поля
         setEditDescription(todoToEdit.description);
-        setIsAddToDoModalOpen(true);
-    }
+        setIsAddToDoModalOpen(true); // Открываем модалку
+    };
+       
 
     const handleEditSubmit = (newTitle, newDescription) => {
         dispatch({
             type: ACTIONS.edit,
             payload: {
-              index: editIndex,
-              title: newTitle,
-              description: newDescription
-            }
+                id: editIndex, // Передаем id редактируемой задачи
+                title: newTitle,
+                description: newDescription,
+            },
         });
-      
-        // Очистка и закрытие модалки
+
+        // Закрытие модалки и сброс состояния
         setIsAddToDoModalOpen(false);
         setEditIndex(null);
         setEditTitle('');
         setEditDescription('');
-    };   
+    };    
 
     const handleSubmit = (title,description) => {
         console.log(title)
@@ -66,6 +73,10 @@ const ToDoDashboard = () => {
         acc[todo.status] = (acc[todo.status] || 0) + 1;
         return acc;
     }, { "To Do": 0, "In Progress": 0, "Done": 0, "Deleted": 0 });
+
+    const handleSearchChange = useCallback((e) => {
+        setSearch(e.target.value)
+    },[])
     
 
     const statuses = ["To Do", "In Progress", "Done", "Deleted"];
@@ -87,7 +98,7 @@ const ToDoDashboard = () => {
                     change theme: {theme}
                 </Button>
                 <BaseField className={styles.field} label="search: ">
-                    <Input className={styles.searchInput} value={search} onChange={(e) => setSearch(e.target.value)}/>
+                    <Input className={styles.searchInput} value={search} onChange={handleSearchChange}/>
                 </BaseField>
 
                 
@@ -112,7 +123,7 @@ const ToDoDashboard = () => {
                     editDescription={editDescription}
                     setEditDescription={setEditDescription}
                     onEditSubmit={handleEditSubmit}
-                    onSumbmit={handleSubmit}
+                    onSubmit={handleSubmit}
                 />
             )}
 
@@ -131,14 +142,13 @@ const ToDoDashboard = () => {
                         </h2>
                         {filteredTodos
                             .filter((todo) => todo.status === status)
-                            .map((todo, index) => (
+                            .map((todo) => (
                                 <Card
-                                    key={todo.id}
+                                    key={todo.id} // Уникальный ключ
                                     id={todo.id}
                                     title={todo.title}
                                     description={todo.description}
                                     taskStatus={todo.status}
-                                    index={index}
                                     onEdit={handleEdit}
                                     dispatch={dispatch}
                                     draggingId={state.draggingId}

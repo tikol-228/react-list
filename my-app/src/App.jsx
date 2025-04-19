@@ -8,7 +8,7 @@ function App() {
   return (
     <>
 
-      <ThemeProvider><ToDoDashboard/></ThemeProvider>      
+      <ThemeProvider><ToDoDashboard/></ThemeProvider>  
     </>
   )
 }

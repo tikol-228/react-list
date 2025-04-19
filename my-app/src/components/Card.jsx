@@ -42,7 +42,7 @@ const Card = ({ title, description, id, taskStatus, index, draggingId, onEdit, d
           <p className={styles.cardDescription}>Description: {description}</p>
         </div>
         <div className={styles.cardButtons}>
-          <Button onClick={() => {onEdit(index)}}>Edit</Button>
+        <Button onClick={() => {onEdit(id)}}>Edit</Button>
           {taskStatus !== "To Do" && (
           <Button onClick={handleBackBtn}>Back</Button>
           )}
