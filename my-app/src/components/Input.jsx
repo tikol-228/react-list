@@ -13,8 +13,6 @@ const areEqual = (prevProps, nextProps) => {
   );
 }
 
-console.log(1)
-
 const Input = ({ type, placeholder, value, onChange, className }) => {
   return (
       <input
