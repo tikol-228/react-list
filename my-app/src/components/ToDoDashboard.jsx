@@ -9,6 +9,8 @@ import { ACTIONS, todoReducer } from '../helpers/todoReducer';
 import { useContext } from 'react';
 import { ThemeContext } from '../providers/ThemProvider';
 import TestBtn from './TestBtn';
+import { useToast } from '../providers/ToastProvider';
+
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
@@ -23,6 +25,7 @@ const ToDoDashboard = () => {
     const [editDescription, setEditDescription] = useState('');
     const [search, setSearch] = useState('');
     const { theme, toggleTheme } = useContext(ThemeContext);
+    const {addToast} = useToast();
     const refs = useRef({}); // Создаем объект для хранения ссылок на карточки
 
     const handleAddBtnClick = useCallback(() => {
@@ -31,6 +34,7 @@ const ToDoDashboard = () => {
 
     const clearDeletedTodos = () => {
         dispatch({ type: ACTIONS.clear });
+        addToast('Deleted tasks cleared');
     };
 
     const handleEdit = (id) => {
@@ -127,6 +131,7 @@ const ToDoDashboard = () => {
                 </BaseField>
 
                 <TestBtn onClick={handleTestBtnClick}>tikol</TestBtn>
+                
 
                 <div className={styles.statsBox}>
                     <h2>stats</h2>

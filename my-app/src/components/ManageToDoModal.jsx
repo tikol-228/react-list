@@ -3,11 +3,13 @@ import Button from './Button';
 import BaseField from './BaseField';
 import Input from './Input';
 import Modal from './Modal';
+import { useToast } from '../providers/ToastProvider';
 import styles from './ManageToDoModal.module.css';
 
 const ManageToDoModal = ({ onClose, editTitle, editDescription, onSubmit, onEditSubmit }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const { addToast } = useToast();
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -36,8 +38,10 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSubmit, onEdit
   
     if (editTitle && onEditSubmit) {
       onEditSubmit(title, description);
+      addToast('Task updated successfully');
     } else {
       onSubmit(title, description);
+      addToast('Task added successfully');
     }
   
     onClose();
