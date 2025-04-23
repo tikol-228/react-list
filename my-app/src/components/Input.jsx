@@ -1,18 +1,5 @@
 import React from "react";
 
-const areEqual = (prevProps, nextProps) => {
-  console.log(1, prevProps.className === nextProps.className);
-  console.log(2, prevProps.placeholder, prevProps.placeholder === nextProps.placeholder);
-  console.log(3, prevProps.value, prevProps.value === nextProps.value);
-  console.log(4, prevProps.onChange === nextProps.onChange);
-  return (
-    prevProps.className === nextProps.className &&
-    prevProps.placeholder === nextProps.placeholder &&
-    prevProps.value === nextProps.value &&
-    prevProps.onChange === nextProps.onChange
-  );
-}
-
 const Input = ({ type, placeholder, value, onChange, className }) => {
   return (
       <input
@@ -25,4 +12,4 @@ const Input = ({ type, placeholder, value, onChange, className }) => {
   );
 };
 
-export default React.memo(Input, areEqual);
+export default React.memo(Input);

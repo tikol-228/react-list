@@ -8,6 +8,7 @@ import Input from './Input';
 import { ACTIONS, todoReducer } from '../helpers/todoReducer';
 import { useContext } from 'react';
 import { ThemeContext } from '../providers/ThemProvider';
+import TestBtn from './TestBtn';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
@@ -23,9 +24,9 @@ const ToDoDashboard = () => {
     const [search, setSearch] = useState('');
     const {theme, toggleTheme} = useContext(ThemeContext);
 
-    const handleAddBtnClick = () => {
-        setIsAddToDoModalOpen(!isAddToDoModalOpen);
-    };
+    const handleAddBtnClick = useCallback(() => {
+        setIsAddToDoModalOpen(prev => !prev);
+    }, []);
 
     const clearDeletedTodos = () => {
         dispatch({ type: ACTIONS.clear });
@@ -61,7 +62,11 @@ const ToDoDashboard = () => {
         setEditIndex(null);
         setEditTitle('');
         setEditDescription('');
-    };    
+    };
+
+    const handleTestBtnClick = useCallback(() => {
+        console.log("testBtn")
+    }, [])
 
     const handleSubmit = (title,description) => {
         console.log(title)
@@ -101,7 +106,7 @@ const ToDoDashboard = () => {
                     <Input className={styles.searchInput} value={search} onChange={handleSearchChange}/>
                 </BaseField>
 
-                
+                <TestBtn onClick={handleTestBtnClick}>tikol</TestBtn>
 
                 <div className={styles.statsBox}>
                     <h2>stats</h2>

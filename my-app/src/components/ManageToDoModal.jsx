@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Button from './Button';
 import BaseField from './BaseField';
 import Input from './Input';
 import Modal from './Modal';
 import styles from './ManageToDoModal.module.css';
 
-const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit, onEditSubmit }) => {
+const ManageToDoModal = ({ onClose, editTitle, editDescription, onSubmit, onEditSubmit }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -14,6 +14,14 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit, onEdi
     setDescription(editDescription);
   }, [editTitle, editDescription]);
 
+  const handleTitleChange = useCallback((e) => {
+    setTitle(e.target.value)
+  },[])
+
+  const handleDescriptionChange = useCallback((e) => {
+    setDescription(e.target.value)
+  },[])
+
   const onSubmitBtnClick = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -21,7 +29,7 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit, onEdi
     if (editTitle && onEditSubmit) {
       onEditSubmit(title, description);
     } else {
-      onSumbmit(title, description);
+      onSubmit(title, description);
     }
   
     onClose();
@@ -36,10 +44,10 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSumbmit, onEdi
           <Button className={styles.closeButton} onClick={onClose}></Button>
         </div>
         <BaseField className={styles.field} label="Title: ">
-          <Input className={styles.modalInput} value={title} onChange={e => setTitle(e.target.value)} />
+          <Input className={styles.modalInput} value={title} onChange={handleTitleChange} />
         </BaseField>
         <BaseField className={styles.field} label="Description: ">
-          <Input className={styles.input} value={description} onChange={e => setDescription(e.target.value)} />
+          <Input className={styles.input} value={description} onChange={handleDescriptionChange} />
         </BaseField>
         <Button className={styles.submitButton} type="submit">{editTitle ? 'Update' : 'Submit'}</Button>
       </form>
