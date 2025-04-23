@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useState } from 'react';
+import React, { useCallback, useReducer, useState, useRef } from 'react';
 import Button from './Button';
 import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
@@ -13,16 +13,17 @@ import TestBtn from './TestBtn';
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
     const initialState = {
-        todos: [],  // Начальное состояние todos — это пустой массив.
+        todos: [],
         draggingId: null,
     };
     const [state, dispatch] = useReducer(todoReducer, initialState);
     const { todos } = state;
-    const [editIndex, setEditIndex] = useState(null); // Индекс редактируемой задачи
+    const [editIndex, setEditIndex] = useState(null);
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
     const [search, setSearch] = useState('');
-    const {theme, toggleTheme} = useContext(ThemeContext);
+    const { theme, toggleTheme } = useContext(ThemeContext);
+    const refs = useRef({}); // Создаем объект для хранения ссылок на карточки
 
     const handleAddBtnClick = useCallback(() => {
         setIsAddToDoModalOpen(prev => !prev);
@@ -33,31 +34,29 @@ const ToDoDashboard = () => {
     };
 
     const handleEdit = (id) => {
-        const todoToEdit = todos.find(todo => todo.id === id); // Ищем задачу по id
+        const todoToEdit = todos.find(todo => todo.id === id);
 
         if (!todoToEdit) {
             console.error(`Task with id ${id} not found`);
-            return; // Выходим из функции, если задача не найдена
+            return;
         }
 
-        setEditIndex(id); // Сохраняем id редактируемой задачи
-        setEditTitle(todoToEdit.title); // Заполняем поля
+        setEditIndex(id);
+        setEditTitle(todoToEdit.title);
         setEditDescription(todoToEdit.description);
-        setIsAddToDoModalOpen(true); // Открываем модалку
+        setIsAddToDoModalOpen(true);
     };
-       
 
     const handleEditSubmit = (newTitle, newDescription) => {
         dispatch({
             type: ACTIONS.edit,
             payload: {
-                id: editIndex, // Передаем id редактируемой задачи
+                id: editIndex,
                 title: newTitle,
                 description: newDescription,
             },
         });
 
-        // Закрытие модалки и сброс состояния
         setIsAddToDoModalOpen(false);
         setEditIndex(null);
         setEditTitle('');
@@ -65,34 +64,51 @@ const ToDoDashboard = () => {
     };
 
     const handleTestBtnClick = useCallback(() => {
-        console.log("testBtn")
-    }, [])
+        console.log("testBtn");
+    }, []);
 
-    const handleSubmit = (title,description) => {
-        console.log(title)
-        console.log(description)
-        dispatch({type: ACTIONS.add, payload: {title,description,id: Date.now(),status: "To Do",}})
-        setIsAddToDoModalOpen(false)
-    }
+    const handleSubmit = (title, description) => {
+        console.log(title);
+        console.log(description);
+        dispatch({ type: ACTIONS.add, payload: { title, description, id: Date.now(), status: "To Do" } });
+        setIsAddToDoModalOpen(false);
+    };
+
     const stats = (todos || []).reduce((acc, todo) => {
         acc[todo.status] = (acc[todo.status] || 0) + 1;
         return acc;
     }, { "To Do": 0, "In Progress": 0, "Done": 0, "Deleted": 0 });
 
     const handleSearchChange = useCallback((e) => {
-        setSearch(e.target.value)
-    },[])
-    
+        const searchValue = e.target.value.toLowerCase();
+        setSearch(searchValue);
+
+        // Убираем обводку со всех карточек
+        Object.values(refs.current).forEach((ref) => {
+            if (ref) ref.classList.remove(styles.highlight);
+        });
+
+        // Если поле поиска не пустое, добавляем обводку найденным карточкам
+        if (searchValue) {
+            todos.forEach((todo) => {
+                if (
+                    todo.title.toLowerCase().includes(searchValue) ||
+                    todo.description.toLowerCase().includes(searchValue)
+                ) {
+                    const ref = refs.current[todo.id];
+                    if (ref) ref.classList.add(styles.highlight);
+                }
+            });
+        }
+    }, [todos]);
 
     const statuses = ["To Do", "In Progress", "Done", "Deleted"];
 
     const filteredTodos = todos.filter(todo =>
         todo.title.toLowerCase().includes(search.toLowerCase()) ||
         todo.description.toLowerCase().includes(search.toLowerCase())
-    );    
+    );
 
-    
-    
     return (
         <>
             <div className={styles.container}>
@@ -103,7 +119,11 @@ const ToDoDashboard = () => {
                     change theme: {theme}
                 </Button>
                 <BaseField className={styles.field} label="search: ">
-                    <Input className={styles.searchInput} value={search} onChange={handleSearchChange}/>
+                    <Input
+                        className={styles.searchInput}
+                        value={search}
+                        onChange={handleSearchChange}
+                    />
                 </BaseField>
 
                 <TestBtn onClick={handleTestBtnClick}>tikol</TestBtn>
@@ -134,9 +154,12 @@ const ToDoDashboard = () => {
 
             <div className={styles.columns}>
                 {statuses.map((status) => (
-                    <div key={status} className={styles.column}
-                    onDragOver={(e) => e.preventDefault()} // нужно для разрешения drop
-                    onDrop={() => dispatch({ type: ACTIONS.drop, payload: status })}>
+                    <div
+                        key={status}
+                        className={styles.column}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => dispatch({ type: ACTIONS.drop, payload: status })}
+                    >
                         <h2 className={styles.columnHeader}>
                             {status}
                             {status === 'Deleted' && (
@@ -148,16 +171,21 @@ const ToDoDashboard = () => {
                         {filteredTodos
                             .filter((todo) => todo.status === status)
                             .map((todo) => (
-                                <Card
-                                    key={todo.id} // Уникальный ключ
-                                    id={todo.id}
-                                    title={todo.title}
-                                    description={todo.description}
-                                    taskStatus={todo.status}
-                                    onEdit={handleEdit}
-                                    dispatch={dispatch}
-                                    draggingId={state.draggingId}
-                                />
+                                <div
+                                    key={todo.id}
+                                    ref={(el) => (refs.current[todo.id] = el)}
+                                    className={styles.card}
+                                >
+                                    <Card
+                                        id={todo.id}
+                                        title={todo.title}
+                                        description={todo.description}
+                                        taskStatus={todo.status}
+                                        onEdit={handleEdit}
+                                        dispatch={dispatch}
+                                        draggingId={state.draggingId}
+                                    />
+                                </div>
                             ))}
                     </div>
                 ))}
