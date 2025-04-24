@@ -11,10 +11,11 @@ export const useToast = () => {
 
 export const ToastProvider = ({children}) => {
     const [toast, setToast] = useState(null)
-    const [toastType, setToastType] = useState('succes')
+    const [toastType, setToastType] = useState('success')
 
-    const addToast = (message) => {
+    const addToast = (message, type='success') => {
         setToast(message)
+        setToastType(type)
         setTimeout(() => setToast(null), 3000)
     }
 
@@ -27,7 +28,7 @@ export const ToastProvider = ({children}) => {
       <ToastContext.Provider value={{addToast, removeToast}}>
         {children}
         {toast && (
-          <Toast className={styles.toast} message={toast} onClose={removeToast}/>
+          <Toast className={styles.toast} type={toastType} message={toast} onClose={removeToast}/>
         )}
       </ToastContext.Provider>
     </>

@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useState, useRef } from 'react';
+import React, { useCallback, useReducer, useState, useRef, useEffect } from 'react';
 import Button from './Button';
 import AddToDoModal from './ManageToDoModal';
 import Card from './Card';
@@ -8,9 +8,7 @@ import Input from './Input';
 import { ACTIONS, todoReducer } from '../helpers/todoReducer';
 import { useContext } from 'react';
 import { ThemeContext } from '../providers/ThemProvider';
-import TestBtn from './TestBtn';
 import { useToast } from '../providers/ToastProvider';
-
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
@@ -25,16 +23,28 @@ const ToDoDashboard = () => {
     const [editDescription, setEditDescription] = useState('');
     const [search, setSearch] = useState('');
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const {addToast} = useToast();
+    const { addToast } = useToast();
     const refs = useRef({}); // Создаем объект для хранения ссылок на карточки
+    const colomnRefs = useRef({}); // Создаем объект для хранения ссылок на колонки
 
     const handleAddBtnClick = useCallback(() => {
         setIsAddToDoModalOpen(prev => !prev);
     }, []);
 
+    // Подсветка колонки "To Do" при открытии модального окна
+    useEffect(() => {
+        if (isAddToDoModalOpen && colomnRefs.current['To Do']) {
+            colomnRefs.current['To Do'].classList.add(styles.highlightCard);
+            const timer = setTimeout(() => {
+                colomnRefs.current['To Do'].classList.remove(styles.highlightCard);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isAddToDoModalOpen]);
+
     const clearDeletedTodos = () => {
         dispatch({ type: ACTIONS.clear });
-        addToast('Deleted tasks cleared');
+        addToast('Deleted tasks cleared', 'error');
     };
 
     const handleEdit = (id) => {
@@ -67,13 +77,7 @@ const ToDoDashboard = () => {
         setEditDescription('');
     };
 
-    const handleTestBtnClick = useCallback(() => {
-        console.log("testBtn");
-    }, []);
-
     const handleSubmit = (title, description) => {
-        console.log(title);
-        console.log(description);
         dispatch({ type: ACTIONS.add, payload: { title, description, id: Date.now(), status: "To Do" } });
         setIsAddToDoModalOpen(false);
     };
@@ -128,10 +132,7 @@ const ToDoDashboard = () => {
                         value={search}
                         onChange={handleSearchChange}
                     />
-                </BaseField>
-
-                <TestBtn onClick={handleTestBtnClick}>tikol</TestBtn>
-                
+                </BaseField>     
 
                 <div className={styles.statsBox}>
                     <h2>stats</h2>
@@ -161,6 +162,7 @@ const ToDoDashboard = () => {
                 {statuses.map((status) => (
                     <div
                         key={status}
+                        ref={(el) => (colomnRefs.current[status] = el)} // Привязываем реф к колонке
                         className={styles.column}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={() => dispatch({ type: ACTIONS.drop, payload: status })}
@@ -185,10 +187,10 @@ const ToDoDashboard = () => {
                                         id={todo.id}
                                         title={todo.title}
                                         description={todo.description}
+                                        colRefs={colomnRefs}
                                         taskStatus={todo.status}
                                         onEdit={handleEdit}
                                         dispatch={dispatch}
-                                        draggingId={state.draggingId}
                                     />
                                 </div>
                             ))}

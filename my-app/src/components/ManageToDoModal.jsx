@@ -38,10 +38,10 @@ const ManageToDoModal = ({ onClose, editTitle, editDescription, onSubmit, onEdit
   
     if (editTitle && onEditSubmit) {
       onEditSubmit(title, description);
-      addToast('Task updated successfully');
+      addToast('Task updated successfully', 'info');
     } else {
       onSubmit(title, description);
-      addToast('Task added successfully');
+      addToast('Task added successfully', 'success');
     }
   
     onClose();

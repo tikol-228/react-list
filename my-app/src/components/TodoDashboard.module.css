@@ -110,3 +110,9 @@
   border-radius: 8px; /* Радиус должен совпадать с карточкой */
   transition: box-shadow 0.3s ease;
 }
+
+.highlightCard {
+  box-shadow: 0 0 0 3px #4caf50; /* Зеленая обводка */
+  border-radius: 8px; /* Радиус должен совпадать с карточкой */
+  transition: box-shadow 0.3s ease;
+}
