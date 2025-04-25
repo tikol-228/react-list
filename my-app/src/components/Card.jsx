@@ -16,23 +16,24 @@ const Card = ({ title, description, id, taskStatus, onEdit, dispatch, colRefs })
     dispatch({ type: ACTIONS.back, payload: id });
   };
 
+  // Подсветка следующей колонки при наведении на кнопку Next
   const statuses = ['To Do', 'In Progress', 'Done', 'Deleted'];
   const currentIndex = statuses.indexOf(taskStatus);
-  const nextStatus = statuses[currentIndex + 1]; 
+  const nextStatus = statuses[currentIndex + 1]; // Находим следующий статус
 
   const handleNextCardMouseEnter = () => {
-    if (!nextStatus) return; 
-    const nextCol = colRefs?.current?.[nextStatus];
+    if (!nextStatus) return; // Если следующего статуса нет, ничего не делаем
+    const nextCol = colRefs?.current?.[nextStatus]; // Находим следующую колонку
     if (nextCol) {
-      nextCol.classList.add(styles.highlightColumn);
+      nextCol.classList.add(styles.highlightColumn); // Добавляем подсветку
     }
   };
 
   const handleNextCardMouseLeave = () => {
-    if (!nextStatus) return;
+    if (!nextStatus) return; // Если следующего статуса нет, ничего не делаем
     const nextCol = colRefs?.current?.[nextStatus];
     if (nextCol) {
-      nextCol.classList.remove(styles.highlightColumn);
+      nextCol.classList.remove(styles.highlightColumn); // Убираем подсветку
     }
   };
 

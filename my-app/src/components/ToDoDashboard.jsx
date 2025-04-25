@@ -12,6 +12,7 @@ import { useToast } from '../providers/ToastProvider';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false); // Новое состояние для отслеживания режима редактирования
     const initialState = {
         todos: [],
         draggingId: null,
@@ -28,24 +29,9 @@ const ToDoDashboard = () => {
     const colomnRefs = useRef({}); // Создаем объект для хранения ссылок на колонки
 
     const handleAddBtnClick = useCallback(() => {
-        setIsAddToDoModalOpen(prev => !prev);
+        setIsEditing(false); // Устанавливаем режим добавления
+        setIsAddToDoModalOpen(true);
     }, []);
-
-    // Подсветка колонки "To Do" при открытии модального окна
-    useEffect(() => {
-        if (isAddToDoModalOpen && colomnRefs.current['To Do']) {
-            colomnRefs.current['To Do'].classList.add(styles.highlightCard);
-            const timer = setTimeout(() => {
-                colomnRefs.current['To Do'].classList.remove(styles.highlightCard);
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [isAddToDoModalOpen]);
-
-    const clearDeletedTodos = () => {
-        dispatch({ type: ACTIONS.clear });
-        addToast('Deleted tasks cleared', 'error');
-    };
 
     const handleEdit = (id) => {
         const todoToEdit = todos.find(todo => todo.id === id);
@@ -55,11 +41,22 @@ const ToDoDashboard = () => {
             return;
         }
 
+        setIsEditing(true); // Устанавливаем режим редактирования
         setEditIndex(id);
         setEditTitle(todoToEdit.title);
         setEditDescription(todoToEdit.description);
         setIsAddToDoModalOpen(true);
     };
+
+    // Подсветка колонки "To Do" только при добавлении новой задачи
+    useEffect(() => {
+        const toDoColumn = colomnRefs.current['To Do'];
+        if (!isEditing && isAddToDoModalOpen && toDoColumn) {
+            toDoColumn.classList.add(styles.highlightCard); // Добавляем подсветку
+        } else if (toDoColumn) {
+            toDoColumn.classList.remove(styles.highlightCard); // Убираем подсветку
+        }
+    }, [isAddToDoModalOpen, isEditing]);
 
     const handleEditSubmit = (newTitle, newDescription) => {
         dispatch({
@@ -80,6 +77,11 @@ const ToDoDashboard = () => {
     const handleSubmit = (title, description) => {
         dispatch({ type: ACTIONS.add, payload: { title, description, id: Date.now(), status: "To Do" } });
         setIsAddToDoModalOpen(false);
+    };
+
+    const clearDeletedTodos = () => {
+        dispatch({ type: ACTIONS.clear });
+        addToast('Deleted tasks cleared', 'success'); // Показываем уведомление
     };
 
     const stats = (todos || []).reduce((acc, todo) => {
@@ -187,7 +189,7 @@ const ToDoDashboard = () => {
                                         id={todo.id}
                                         title={todo.title}
                                         description={todo.description}
-                                        colRefs={colomnRefs}
+                                        colRefs={colomnRefs} // Передаем рефы колонок
                                         taskStatus={todo.status}
                                         onEdit={handleEdit}
                                         dispatch={dispatch}
