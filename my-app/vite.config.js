@@ -5,4 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: 'https://tikol-228.github.io/react-list',
+  server: {
+    proxy: {
+      '/notes': 'http://localhost:3000'
+    }
+  }
 })

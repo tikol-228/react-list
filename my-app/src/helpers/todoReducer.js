@@ -8,6 +8,7 @@ export const ACTIONS = {
     edit: "edit",
     moveNext: "moveNext",
     reorder: "reorder",
+    set: "set",
 };
 
 export const getBackStatus = (currentStatus) => {
@@ -104,6 +105,13 @@ export const todoReducer = (state, action) => {
                 todos: state.todos.filter(todo => todo.status !== "Deleted"),
             };
         
+        case ACTIONS.set:
+            // Устанавливаем список задач (загрузка с сервера)
+            return {
+                ...state,
+                todos: action.payload || [],
+            };
+
             case ACTIONS.reorder: {
                 const { fromId, toId } = action.payload;
             

@@ -5,10 +5,11 @@ import Card from './Card';
 import styles from './ToDoDashboard.module.css';
 import BaseField from './BaseField';
 import Input from './Input';
-import { ACTIONS, todoReducer } from '../helpers/todoReducer';
+import { ACTIONS, todoReducer, getNextStatus, getBackStatus } from '../helpers/todoReducer';
 import { useContext } from 'react';
 import { ThemeContext } from '../providers/ThemProvider';
 import { useToast } from '../providers/ToastProvider';
+import { fetchNotes, createNote, updateNote, deleteNote, saveNotes } from '../api/notes';
 
 const ToDoDashboard = () => {
     const [isAddToDoModalOpen, setIsAddToDoModalOpen] = useState(false);
@@ -57,16 +58,37 @@ const ToDoDashboard = () => {
             toDoColumn.classList.remove(styles.highlightCard); // Убираем подсветку
         }
     }, [isAddToDoModalOpen, isEditing]);
-
-    const handleEditSubmit = (newTitle, newDescription) => {
-        dispatch({
-            type: ACTIONS.edit,
-            payload: {
-                id: editIndex,
-                title: newTitle,
-                description: newDescription,
-            },
+    
+    // Load notes from backend on mount
+    useEffect(() => {
+    fetchNotes()
+        .then(data => {
+            console.log(data);
+            dispatch({ type: ACTIONS.set, payload: data });
+        })
+        .catch(err => {
+            addToast('Failed to load tasks', 'error');
+            console.error(err);
         });
+    }, []);
+
+
+    const handleEditSubmit = async (newTitle, newDescription) => {
+        try {
+            const updated = await updateNote(editIndex, { title: newTitle, description: newDescription });
+            dispatch({
+                type: ACTIONS.edit,
+                payload: {
+                    id: editIndex,
+                    title: updated.title,
+                    description: updated.description,
+                },
+            });
+            addToast('Task updated', 'success');
+        } catch (err) {
+            addToast('Update failed', 'error');
+            console.error(err);
+        }
 
         setIsAddToDoModalOpen(false);
         setEditIndex(null);
@@ -74,20 +96,102 @@ const ToDoDashboard = () => {
         setEditDescription('');
     };
 
-    const handleSubmit = (title, description) => {
-        dispatch({ type: ACTIONS.add, payload: { title, description, id: Date.now(), status: "To Do" } });
+    const handleSubmit = async (title, description) => {
+        try {
+            const created = await createNote({ title, description, status: "To Do" });
+            dispatch({ type: ACTIONS.add, payload: created });
+            addToast('Task created', 'success');
+        } catch (err) {
+            addToast('Create failed', 'error');
+            console.error(err);
+        }
         setIsAddToDoModalOpen(false);
     };
 
-    const clearDeletedTodos = () => {
-        dispatch({ type: ACTIONS.clear });
-        addToast('Deleted tasks cleared', 'success'); // Показываем уведомление
+    const clearDeletedTodos = async () => {
+        const deleted = todos.filter(t => t.status === 'Deleted');
+        try {
+            await Promise.all(deleted.map(t => deleteNote(t.id)));
+            dispatch({ type: ACTIONS.clear });
+            addToast('Deleted tasks cleared', 'success');
+        } catch (err) {
+            addToast('Failed to clear deleted tasks', 'error');
+            console.error(err);
+        }
     };
 
     const stats = (todos || []).reduce((acc, todo) => {
         acc[todo.status] = (acc[todo.status] || 0) + 1;
         return acc;
     }, { "To Do": 0, "In Progress": 0, "Done": 0, "Deleted": 0 });
+
+    // Handlers that sync changes with the backend
+    const handleMoveNext = async (id) => {
+       
+        if (!todo) return;
+        const newStatus = getNextStatus(todo.status);
+        try {
+            await updateNote(id, { ...todo, status: newStatus });
+            dispatch({ type: ACTIONS.moveNext, payload: id });
+        } catch (err) {
+            addToast('Move failed', 'error'); console.error(err);
+        }
+    };
+
+    const handleBack = async (id) => {
+       
+        const newStatus = getBackStatus(todo.status);
+        try {
+            await updateNote(id, { ...todo, status: newStatus });
+            dispatch({ type: ACTIONS.back, payload: id });
+        } catch (err) {
+            addToast('Move failed', 'error'); console.error(err);
+        }
+    };
+
+    const handleDelete = async (id) => {
+       
+        console.log(todo)
+        if (!todo) return;
+        try {
+            await updateNote(id, { ...todo, status: 'Deleted' });
+            dispatch({ type: ACTIONS.delete, payload: id });
+        } catch (err) {
+            addToast('Delete failed', 'error'); console.error(err);
+        }
+    };
+
+    const handleDrop = async (status) => {
+        const id = state.draggingId;
+        if (!id) return;
+       
+        if (!todo) return;
+        try {
+            await updateNote(id, { ...todo, status });
+            dispatch({ type: ACTIONS.drop, payload: status });
+        } catch (err) {
+            addToast('Drop failed', 'error'); console.error(err);
+        }
+    };
+
+    const handleReorder = async (fromId, toId) => {
+        if (!fromId || !toId) return;
+        if (fromId === toId) return;
+        const todosCopy = [...todos];
+        const fromIndex = todosCopy.findIndex(t => t.id === fromId);
+        const toIndex = todosCopy.findIndex(t => t.id === toId);
+        if (fromIndex === -1 || toIndex === -1) return;
+        if (todosCopy[fromIndex].status !== todosCopy[toIndex].status) return;
+        const [moved] = todosCopy.splice(fromIndex, 1);
+        todosCopy.splice(toIndex, 0, moved);
+        try {
+            await saveNotes(todosCopy);
+            dispatch({ type: ACTIONS.reorder, payload: { fromId, toId } });
+            addToast('Order saved', 'success');
+        } catch (err) {
+            addToast('Save order failed', 'error'); console.error(err);
+        }
+    }; 
 
     const handleSearchChange = useCallback((e) => {
         const searchValue = e.target.value.toLowerCase();
@@ -167,7 +271,7 @@ const ToDoDashboard = () => {
                         ref={(el) => (colomnRefs.current[status] = el)} // Привязываем реф к колонке
                         className={styles.column}
                         onDragOver={(e) => e.preventDefault()}
-                        onDrop={() => dispatch({ type: ACTIONS.drop, payload: status })}
+                        onDrop={() => handleDrop(status)}
                     >
                         <h2 className={styles.columnHeader}>
                             {status}
@@ -184,6 +288,11 @@ const ToDoDashboard = () => {
                                     key={todo.id}
                                     ref={(el) => (refs.current[todo.id] = el)}
                                     className={styles.card}
+                                    draggable
+                                    onDragStart={(e) => { e.dataTransfer?.setData('text/plain', todo.id); dispatch({ type: ACTIONS.dragStart, payload: todo.id }); }}
+                                    onDragEnd={() => dispatch({ type: ACTIONS.dragStart, payload: null })}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => { e.preventDefault(); handleReorder(state.draggingId, todo.id); }}
                                 >
                                     <Card
                                         id={todo.id}
@@ -192,7 +301,9 @@ const ToDoDashboard = () => {
                                         colRefs={colomnRefs} // Передаем рефы колонок
                                         taskStatus={todo.status}
                                         onEdit={handleEdit}
-                                        dispatch={dispatch}
+                                        onMoveNext={handleMoveNext}
+                                        onDelete={handleDelete}
+                                        onBack={handleBack}
                                     />
                                 </div>
                             ))}

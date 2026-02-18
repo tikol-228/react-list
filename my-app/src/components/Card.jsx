@@ -3,17 +3,17 @@ import Button from './Button';
 import styles from './Card.module.css';
 import { ACTIONS } from '../helpers/todoReducer';
 
-const Card = ({ title, description, id, taskStatus, onEdit, dispatch, colRefs }) => {
+const Card = ({ title, description, id, taskStatus, onEdit, onMoveNext, onDelete, onBack, colRefs }) => {
   const onNextBtnClick = () => {
-    dispatch({ type: ACTIONS.moveNext, payload: id });
+    if (typeof onMoveNext === 'function') onMoveNext(id);
   };
 
   const onDeleteBtnClick = () => {
-    dispatch({ type: ACTIONS.delete, payload: id });
+    if (typeof onDelete === 'function') onDelete(id);
   };
 
   const handleBackBtn = () => {
-    dispatch({ type: ACTIONS.back, payload: id });
+    if (typeof onBack === 'function') onBack(id);
   };
 
   // Подсветка следующей колонки при наведении на кнопку Next

@@ -1,0 +1,15 @@
+{
+  "name": "react-list",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "concurrently \"npm:backend-dev\" \"npm:frontend-dev\"",
+    "backend-dev": "npm --prefix backend run dev",
+    "frontend-dev": "npm --prefix my-app run dev",
+    "build": "npm --prefix my-app run build && npm --prefix backend run start",
+    "start:prod": "npm run build && npm --prefix backend run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
